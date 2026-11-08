@@ -10,22 +10,49 @@ The startup command builds the React interface, starts the FastAPI backend when 
 
 ## Start automatically with systemd
 
-Aurora includes a user service that runs the production build, not a Vite live/development server. Build once, link the service, and enable it for the graphical login session:
+Aurora includes a portable installer for a **user service**. It installs the
+dependencies, builds the production frontend, generates a service containing
+the current clone's absolute path, and enables it for the graphical login
+session. Do not use `sudo`:
+
+```bash
+./systemd/install.sh
+```
+
+From the `electron/` directory, the equivalent npm command is
+`npm run systemd:install`.
+
+The generated unit is written to
+`~/.config/systemd/user/aurora.service`. After source changes, rebuild and
+restart Aurora with:
 
 ```bash
 npm run build
-systemctl --user link "$PWD/systemd/aurora.service"
-systemctl --user enable --now aurora.service
+systemctl --user restart aurora.service
 ```
 
-After source changes, run `npm run build` and restart with `systemctl --user restart aurora.service`. Logs and status are available with:
+Logs and status are available with:
 
 ```bash
 systemctl --user status aurora.service
 journalctl --user -u aurora.service -f
 ```
 
-To turn off automatic startup, use `systemctl --user disable --now aurora.service`.
+To stop Aurora without disabling startup:
+
+```bash
+systemctl --user stop aurora.service
+```
+
+To disable startup and remove the generated unit:
+
+```bash
+./systemd/uninstall.sh
+```
+
+Use `./systemd/install.sh --no-install` to regenerate the service without
+running `npm ci` or rebuilding. Use `--dry-run` to inspect the generated unit
+without changing systemd.
 
 ## Live speech
 

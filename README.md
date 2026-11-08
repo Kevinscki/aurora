@@ -28,6 +28,32 @@ input additionally requires `numpy` and `sherpa-onnx`. Voice output requires
 either the `piper-tts` Python package or a `piper` executable; set `PIPER_BIN`
 if that executable is not on `PATH`.
 
+## Start Aurora automatically at login
+
+On a Linux desktop using systemd, run the user-service installer from the
+repository root:
+
+```bash
+./electron/systemd/install.sh
+```
+
+The installer resolves the clone's actual location, installs the npm
+dependencies, builds the frontend, creates
+`~/.config/systemd/user/aurora.service`, and runs:
+
+```bash
+systemctl --user daemon-reload
+systemctl --user enable --now aurora.service
+```
+
+This is a per-user graphical service, so do not run the installer with `sudo`.
+Check it with `systemctl --user status aurora.service` and follow logs with
+`journalctl --user -u aurora.service -f`. Remove autostart with:
+
+```bash
+./electron/systemd/uninstall.sh
+```
+
 ## Configure a language model
 
 Open **Settings** in Aurora and configure these fields:

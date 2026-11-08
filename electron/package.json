@@ -7,7 +7,9 @@
     "build": "npm --prefix ../frontend run build",
     "prestart": "npm run build",
     "start": "electron . --no-sandbox --ozone-platform=x11",
-    "start:production": "electron . --no-sandbox --ozone-platform=x11"
+    "start:production": "electron . --no-sandbox --ozone-platform=x11",
+    "systemd:install": "bash systemd/install.sh",
+    "systemd:uninstall": "bash systemd/uninstall.sh"
   },
   "devDependencies": {
     "electron": "^44.5.1"

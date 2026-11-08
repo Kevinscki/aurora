@@ -1,13 +1,14 @@
+# Generated from this template by install.sh. Do not install the template directly.
 [Unit]
 Description=Aurora desktop assistant
-Documentation=file:///home/kelvin/Downloads/aurora/electron/README.md
 After=graphical-session.target
 PartOf=graphical-session.target
+ConditionPathExists="@ELECTRON_BIN@"
 
 [Service]
 Type=simple
-WorkingDirectory=/home/kelvin/Downloads/aurora/electron
-ExecStart=/home/kelvin/Downloads/aurora/electron/node_modules/electron/dist/electron . --no-sandbox --ozone-platform=x11
+WorkingDirectory="@ELECTRON_DIR@"
+ExecStart="@ELECTRON_BIN@" "." "--no-sandbox" "--ozone-platform=x11"
 Restart=on-failure
 RestartSec=3
 KillMode=control-group
