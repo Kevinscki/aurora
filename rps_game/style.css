@@ -1,5 +1,0 @@
-body {font-family: Arial, sans-serif; text-align:center; margin-top:2rem; background:#f0f0f0;}
-#game {display:inline-block; background:#fff; padding:2rem; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.2);}
-.choice {margin:0.5rem 0; font-size:1.2rem;}
-#result {margin-top:1rem; font-weight:bold; font-size:1.3rem;}
-#buttons button {margin:0.5rem; padding:0.8rem 1.5rem; font-size:1rem; cursor:pointer;}
