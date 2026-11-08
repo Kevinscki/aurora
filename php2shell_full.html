@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+  <meta name="theme-color" content="#f4f0e7">
+  <title>php2shell by Calif Research</title>
+  <meta name="description" content="A tale of two PHP remote vulnerabilities">
+  <link rel="canonical" href="https://calif.io/php2shell.x">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <meta property="og:title" content="php2shell by Calif Research">
+  <meta property="og:description" content="A tale of two PHP remote vulnerabilities">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Calif">
+  <meta property="og:url" content="https://calif.io/php2shell.x">
+  <meta property="og:image" content="https://calif.io/php2shell.x/php2shell.x.jpg">
+  <meta property="og:image:alt" content="php2shell: a geometric PHP elephant with a spiral shell">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="php2shell by Calif Research">
+  <meta name="twitter:description" content="A tale of two PHP remote vulnerabilities">
+  <meta name="twitter:image" content="https://calif.io/php2shell.x/php2shell.x.jpg">
+  <link rel="stylesheet" href="/php2shell.x/style.css?v=b2b2f5ce6aff">
+  <script src="/php2shell.x/reader.js?v=bc1aa6f401a8" defer></script>
+</head>
+<body>
+  <a class="skip" href="#writeup">Skip to the write-up</a>
+  <header class="masthead">
+    <a class="wordmark" href="/php2shell.x" aria-label="php2shell home">php<span>2</span>shell</a>
+    <a class="credit" href="https://calif.io/research">Calif Research ↗</a>
+  </header>
+  <main>
+    <section class="cold-open" aria-labelledby="opening">
+      <h1 id="opening">A tale of <em>two PHP remote vulnerabilities</em></h1>
+      <p class="press-coverage">Covered by <a href="https://www.wsj.com/tech/cybersecurity/ai-just-found-a-bug-that-puts-up-to-70-of-the-worlds-websites-at-risk-fd0902ea?st=fWYdje&amp;reflink=desktopwebshare_permalink" target="_blank" rel="noopener noreferrer">The Wall Street Journal</a> and <a href="https://www.nytimes.com/2026/10/21/us/politics/php-vulnerability-ai-openai-cybersecurity.html?unlocked_article_code=1.KVE.ompY.9fTYV5OfCIS5&amp;smid=url-share" target="_blank" rel="noopener noreferrer">The New York Times</a></p>
+      <p class="invitation">This story outlines the details of two PHP remote vulnerabilities (<a href="https://www.cve.org/CVERecord?id=CVE-2026-109618">CVE-2026-109618</a>, <a href="https://www.cve.org/CVERecord?id=CVE-2026-109619">CVE-2026-109619</a>) discovered by Calif, OpenAI and Wiz, and addressed in <a href="https://www.php.net/archive/2026.php#2026-10-21-5">PHP October 2026 Security Release</a>. To understand the bugs, first join us on a journey through time...</p>
+      <nav class="shortcuts" aria-label="Start reading">
+        <a href="#the-artifact">Begin in 2004 ↓</a>
+        <a href="#writeup">Go straight to the write-up ↘</a>
+      </nav>
+    </section>
+
+    <section class="comic" data-mode="auto" aria-label="An illustrated journey through PHP history">
+      <div class="reader-toolbar"><div class="reader-toolbar-inner">
+        <nav class="era-links" aria-label="Comic chapters">
+          <a href="#the-artifact" aria-current="location">2004</a>
+          <a href="#the-clue">2020</a>
+          <a href="#the-audit">2024</a>
+          <a href="#patch-the-planet">2026</a>
+        </nav>
+        <div class="reader-mode" role="group" aria-label="Comic reading mode" hidden>
+          <button type="button" data-mode="pages" aria-pressed="true">Pages</button>
+          <button type="button" data-mode="panels" aria-pressed="false">Panels</button>
+        </div>
+      </div></div>
+      <section class="chapter" id="the-artifact" aria-labelledby="chapter-1">
+      <div class="chapter-heading"><h2 id="chapter-1"><span>2004</span>The origin</h2><small>1 / 6</small></div>
+      <div class="chapter-description"><p>The year was 2004. The iPhone was yet to be invented and our very own <a href="https://x.com/i0n1c">Stefan Esser</a> was still <em>the</em> PHP security guy.</p></div>
+      <div class="page-layout"><div class="comic-image"><img src="/php2shell.x/comic/page-1.webp" width="1600" height="2473" loading="lazy" decoding="async" alt="Comic page 1: The origin."></div></div>
+      <div class="panel-layout"><div class="comic-image"><img src="/php2shell.x/comic/page-1-panel-1.webp" width="693" height="1334" loading="eager" decoding="async" alt="Stefan searches for forbidden knowledge in a street marked 2004, Göbekli Tepe."></div>
+<div class="comic-image"><img src="/php2shell.x/comic/page-1-panel-2.webp" width="840" height="1016" loading="lazy" decoding="async" alt="An ancient PHP elephant artifact covered with code."></div>
+<div class="comic-image"><img src="/php2shell.x/comic/page-1-panel-3.webp" width="837" height="411" loading="lazy" decoding="async" alt="A mysterious figure offers the artifact. Stefan asks, “Are you sure this is safe?” The reply: “I am certain.”"></div>
+<div class="comic-image"><img src="/php2shell.x/comic/page-1-panel-4.webp" width="936" height="586" loading="lazy" decoding="async" alt="Stefan accepts the challenge, despite his suspicions."></div>
+<div class="comic-image"><img src="/php2shell.x/comic/page-1-panel-5.webp" width="936" height="453" loading="lazy" decoding="async" alt="The PHP artifact changes hands across a table."></div>
+<div class="comic-image"><img src="/php2shell.x/comic/page-1-panel-6.webp" width="592" height="941" loading="lazy" decoding="async" alt="Stefan unlocks the mystery of the original memory-limit RCE."></div></div>
+
+      <details class="transcript"><summary>Read the scene</summary><p>2004. Stefan searches for forbidden knowledge and discovers an ancient PHP artifact. “Are you sure this is safe?” he asks. “I am certain,” comes the reply. Suspicious, he accepts the challenge—and unlocks the mystery of the original memory-limit RCE.</p></details>
+      <div class="chapter-description chapter-context"><p>Back then, I was a kid. I've followed Stefan's PHP research to improve my own understanding of PHP as an attack surface. Long before the 2008 call-time-pass-by-reference / interruption vulnerabilities and the more famous <code>unserialize()</code> use-after-frees and <code>POP(object)</code> injections, Stefan unearthed <a href="https://marc.info/?l=bugtraq&amp;m=108981780109154&amp;w=2">the first PHP memory limit remote vulnerability</a> in 2004. I remembered the vulnerability as it was described by Stefan as being critical enough that he would not release his exploit to the public. Eventually, two other commercial exploit vendors developed non-public exploits as well - CORE and <a href='https://web.archive.org/web/20051231011715/http://immunitysec.com/downloads/nolimits.pdf'>Immunity Inc</a>. Other than those, we only had fake exploits circulating on IRC and designed to compromise <i>your</i> machine.</p><p>The years went on and all of the default unserializable classes with use-after-free or type confusion bugs in PHP were found and patched as well. We verified this earlier in the year when we released <a href="https://calif.io/research/php-uaf">our first PHP research</a> attempting to find any remnants that might have been missed; we found no exploitable vectors that would be exploitable by default.</p></div>
+    </section>
+<section class="chapter" id="the-clue" aria-labelledby="chapter-2">
+      <div class="chapter-heading"><h2 id="chapter-2"><span>2020</span>The OOM</h2><small>2 / 6</small></div>
+      <div class="chapter-description"><p>Then, in 2020, jr@coredu.edu reported a seemingly harmless <a href='https://bugs.php.net/bug.php?id=78876'>bug #78876</a> to the PHP project, noting that certain long variables could cause an out-of-memory condition and the failure to clean up temporary files. At the time, not much was made of the report:</p></div>
+      <div class="page-layout"><div class="comic-image"><img src="/php2shell.x/comic/page-2.webp" width="1600" height="2473" loading="lazy" decoding="async" alt="Comic page 2: The OOM."></div></div>
+      <div class="panel-layout"><div class="comic-image"><img src="/php2shell.x/comic/page-2-panel-1.webp" width="1558" height="784" loading="lazy" decoding="async" alt="London, 2020. A detective surveys the city, deep in thought."></div>
+<div class="comic-image"><img src="/php2shell.x/comic/page-2-panel-2.webp" width="1558" height="1586" loading="lazy" decoding="async" alt="A detective examines a bug report: long variables caused out-of-memory conditions and temporary files were not cleaned. An inset identifies PHP bug #78876."></div></div>
+      <details class="transcript"><summary>Read the scene</summary><p>London, 2020. A detective is called to investigate a bug report. “Long variables must have caused OOM, and temp files were not cleaned.” The clue is PHP bug #78876.</p></details>
+    </section>
+<section class="chapter" id="the-audit" aria-labelledby="chapter-3">
+      <div class="chapter-heading"><h2 id="chapter-3"><span>2024</span>The audit</h2><small>3 / 6</small></div>
+      <div class="chapter-description"><p>Fast forward to 2024 when OSTIF and Quarkslab performed an <a href="https://ostif.org/php-audit-complete/">audit of PHP</a> and rediscovered the same OOM issue. However, exploitation was not proven, hence the bug was not fixed.</p></div>
+      <div class="page-layout"><div class="comic-image"><img src="/php2shell.x/comic/page-3.webp" width="1600" height="2473" loading="lazy" decoding="async" alt="Comic page 3: The audit."></div></div>
+      <div class="panel-layout"><div class="comic-image"><img src="/php2shell.x/comic/page-3-panel-1.webp" width="822" height="1173" loading="lazy" decoding="async" alt="2024. A scientist investigates an anomaly in a PHP laboratory. The result: OOM exploitation of unknown origin."></div>
+<div class="comic-image"><img src="/php2shell.x/comic/page-3-panel-2.webp" width="704" height="541" loading="lazy" decoding="async" alt="The scientist examines a circuit board through oversized goggles."></div>
+<div class="comic-image"><img src="/php2shell.x/comic/page-3-panel-3.webp" width="704" height="579" loading="lazy" decoding="async" alt="“Great Scott!” The circuit reveals an unexpected connection."></div>
+<div class="comic-image"><img src="/php2shell.x/comic/page-3-panel-4.webp" width="1558" height="1213" loading="lazy" decoding="async" alt="The audit finds a related OOM exploitation. A printer produces an elephant-shaped PHP hacked message."></div></div>
+      <details class="transcript"><summary>Read the scene</summary><p>2024. In the PHP laboratory, a scientist investigates an anomaly: out-of-memory exploitation of unknown origin. Looking closer at the circuitry, he exclaims, “Great Scott!” The audit finds a related OOM exploitation.</p></details>
+    </section>
+      <section class="chapter" id="patch-the-planet" aria-labelledby="chapter-4">
+      <div class="chapter-heading"><h2 id="chapter-4"><span>July 30, 2026</span>Patch the Planet</h2><small>4 / 6</small></div>
+      <div class="chapter-description"><p>Finally, we arrive in 2026. OpenAI invited us to join its <a href="https://openai.com/index/patch-the-planet/">Patch the Planet</a> initiative, and PHP stood out as a high-impact target. We wanted the PHP Foundation involved, so Stefan connected us with <a href="https://thephp.foundation/blog/2026/05/18/announcing-ecosystem-security-team/">Volker Dusch</a>, who accepted our invitation. Then we got to work hacking PHP.</p></div>
+<div class="page-layout"><div class="comic-image"><img src="/php2shell.x/comic/php_page4.webp" width="1600" height="2473" loading="lazy" decoding="async" alt="Comic page 4: The discovery in Florida."></div></div>
+<div class="panel-layout"><div class="comic-image"><img src="/php2shell.x/comic/php_page4-panel-1.webp" width="1558" height="952" loading="lazy" decoding="async" alt="2026, somewhere in Florida. A researcher sleeps at a console beside a robot."></div><div class="comic-image"><img src="/php2shell.x/comic/php_page4-panel-2.webp" width="840" height="438" loading="lazy" decoding="async" alt="The console beeps, waking the researcher."></div><div class="comic-image"><img src="/php2shell.x/comic/php_page4-panel-3.webp" width="693" height="438" loading="lazy" decoding="async" alt="The researcher asks, “Huh… another bug?”"></div><div class="comic-image"><img src="/php2shell.x/comic/php_page4-panel-4.webp" width="467" height="352" loading="lazy" decoding="async" alt="Someone rings the doorbell."></div><div class="comic-image"><img src="/php2shell.x/comic/php_page4-panel-5.webp" width="531" height="352" loading="lazy" decoding="async" alt="The researcher opens the door."></div><div class="comic-image"><img src="/php2shell.x/comic/php_page4-panel-6.webp" width="486" height="352" loading="lazy" decoding="async" alt="An envelope waits at the doorstep."></div><div class="comic-image"><img src="/php2shell.x/comic/php_page4-panel-7.webp" width="899" height="608" loading="lazy" decoding="async" alt="The envelope asks, “Are you ready to take the red pill?”"></div><div class="comic-image"><img src="/php2shell.x/comic/php_page4-panel-8.webp" width="629" height="608" loading="lazy" decoding="async" alt="“Let’s go!” The researcher takes a device from the console."></div></div>
+      <details class="transcript"><summary>Read the scene</summary><p>2026, somewhere in Florida. A researcher dozes beside a robot until a beeping console wakes him. “Huh… another bug?” The doorbell rings, and an envelope arrives asking, “Are you ready to take the red pill?” He retrieves a device from the console. “Let’s go!”</p></details>
+      </section>
+      <section class="chapter" id="the-discovery" aria-labelledby="chapter-5">
+      <div class="chapter-heading"><h2 id="chapter-5"><span>Aug 01, 2026</span>The discovery</h2><small>5 / 6</small></div>
+      <div class="chapter-description"><p>We were not expecting to find anything critical - everyone and every lab had already done extensive AI assisted audits of this target. But, only a few days after starting the audit and asking the right questions related to Stefan's earlier findings, we managed to surface the first OOM-fatal (more about that soon) and the first of the three interruption points that allowed us to piece together an RCE against WordPress.</p><p>The first bug isn't usually the best one, so we continued looking for better variants. In the end, we found two more that lead to reliable exploits against <i>mod_php</i> and <code>PHP-FPM</code>.</p></div>
+<div class="page-layout"><div class="comic-image"><img src="/php2shell.x/comic/php_page5.webp" width="1600" height="2473" loading="lazy" decoding="async" alt="Comic page 5: Reporting a critical PHP RCE."></div></div>
+<div class="panel-layout"><div class="comic-image"><img src="/php2shell.x/comic/php_page5-panel-1.webp" width="1558" height="736" loading="lazy" decoding="async" alt="A cloaked figure greets the researcher: “We’ve been expecting you.”"></div><div class="comic-image"><img src="/php2shell.x/comic/php_page5-panel-2.webp" width="754" height="485" loading="lazy" decoding="async" alt="The researcher approaches a council of cloaked figures and a glowing PHP elephant."></div><div class="comic-image"><img src="/php2shell.x/comic/php_page5-panel-3.webp" width="765" height="485" loading="lazy" decoding="async" alt="A close-up of the glowing PHP elephant."></div><div class="comic-image"><img src="/php2shell.x/comic/php_page5-panel-4.webp" width="1558" height="525" loading="lazy" decoding="async" alt="The researcher announces, “I’m here to report a critical RCE.”"></div><div class="comic-image"><img src="/php2shell.x/comic/php_page5-panel-5.webp" width="1558" height="517" loading="lazy" decoding="async" alt="The researcher presents a device to the PHP elephant."></div></div>
+      <details class="transcript"><summary>Read the scene</summary><p>A cloaked figure welcomes the researcher: “We’ve been expecting you.” Inside, a council gathers around a glowing PHP elephant. “I’m here to report a critical RCE,” the researcher announces, presenting his device to the elephant.</p></details>
+      </section>
+      <section class="chapter" id="the-epilogue" aria-labelledby="chapter-6">
+        <div class="chapter-heading"><h2 id="chapter-6"><span>Oct 21, 2026</span>and here we are...</h2><small>6 / 6</small></div>
+        <div class="page-layout"><div class="comic-image"><img src="/php2shell.x/comic/php_page6-panel-1.webp" width="1600" height="2473" loading="lazy" decoding="async" alt="A glowing blue PHP elephant beneath branching blue light. Comic illustrated by Stephanie Cortes — Ibis Craft."></div></div>
+        <div class="panel-layout"><div class="comic-image"><img src="/php2shell.x/comic/php_page6-panel-2.webp" width="1600" height="2473" loading="lazy" decoding="async" alt="A glowing blue PHP elephant beneath branching blue light. Comic illustrated by Stephanie Cortes — Ibis Craft."></div></div>
+        <details class="transcript"><summary>Read the scene</summary><p>A glowing blue PHP elephant beneath branching blue light. Comic illustrated by Stephanie Cortes — Ibis Craft.</p></details>
+      </section>
+    </section>
+
+    <div class="writeup-shell" id="writeup">
+      <aside class="contents" aria-label="In this write-up"><p>The write-up</p><nav>
+        <a href="#php-5-4-0-rce">PHP &gt;= 5.4.0 RCE</a>
+        <a href="#you-said-oom-fatal">You said OOM-fatal?</a>
+        <a href="#but-what-does-an-oom-buy-you-really">But what does an OOM buy you, really?</a>
+        <a href="#the-generalized-pattern">The generalized pattern</a>
+        <a href="#but-what-about-fpm-or-a-gift-from-an-old-friend">But what about PHP-FPM? Or, a gift from an old friend...</a>
+        <a href="#an-interesting-timeline-of-events">An interesting timeline of events</a>
+        <a href="#how-did-we-find-this">How did we find this?</a>
+        <a href="#recommendations">Recommendations</a>
+        <a href="#credits">Credits</a>
+      </nav></aside>
+      <article class="prose" aria-label="php2shell research write-up">
+<h2 id="php-5-4-0-rce">PHP &gt;= 5.4.0 RCE</h2>
+<p>PHP can leave dangling pointers/state when an allocation would exceed memory_limit, or another fatal error interrupts native code before its normal cleanup completes. Request shutdown may then free memory that surviving state still references.</p>
+
+<p>To reach an exploitable state we found two general OOM/memory_limit based fatal producers and three different interruptible points in the interpreter that can leave a stale/consumable state that allows leaking memory and remote code execution.</p>
+<p>The earliest affected path we found dates to PHP 5.4.0; the available exploitation paths depend on the PHP version and SAPI but are always exploitable under default configurations.</p>
+<p>We confirmed pre-auth RCE on the following PHP apps as well as arbitrary PHP scripts in some instances.</p>
+<pre><code class="language-txt">- WordPress 7.1.2
+- Drupal 11.4.3
+- Joomla 6.1.4
+- MediaWiki 1.46.2
+- Roundcube 1.7.4
+- Magento 2.4.9
+- phpMyAdmin 5.2.3
+- Nextcloud 35.0.1
+- Laravel 13.11
+- Symfony 8.1
+- WHMCS</code></pre>
+<p>Here is a demo video of the exploits running:</p>
+<div class="exploit-video" style="width:100%;aspect-ratio:16/9;margin:28px 0 34px;overflow:hidden">
+  <iframe width="1280" height="720" style="display:block;width:100%;height:100%;border:0" src="https://www.youtube-nocookie.com/embed/pfWZrdzvooc" title="php2shell exploit demonstration" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+</div>
+
+
+<h2 id="you-said-oom-fatal">You said OOM-fatal?</h2>
+<p>Right. We should explain from the start.
+          My first step of finding if any long-lost siblings of Stefan's 2004 bug were still lingering in the codebase was to look for
+          ways to exceed the <code>memory_limit</code> that allows us to throw a controllable fatal. I asked
+          my LLM companion for help.</p>
+<p>The first useful finding was a way to bypass the smaller <code>post_max_size</code> barrier that normally
+          prevents a request from delivering enough memory pressure to reach <code>memory_limit</code>.
+          PHP compares <code>post_max_size</code>
+          with the declared <code>Content-Length</code> before automatic POST parsing begins, but it
+          does not enforce the same limit against the bytes it actually consumes. Apache can therefore pass a chunked HTTP/1.1 or lengthless
+          HTTP/2 multipart request with no meaningful declared length. A configured input-decompression filter creates the same mismatch between
+          the compressed length and the decoded stream.</p>
+<p>The second useful finding was a way to exhaust <code>memory_limit</code>
+          with a multipart request that remains below <code>post_max_size</code>. An RFC1867 file-upload part with
+          <code>filename=""</code> contains no file data, and PHP does not count it toward
+          <code>max_file_uploads</code>. PHP still creates all six corresponding
+          <code>$_FILES</code> entries: <code>name, full_path,
+          type, tmp_name, error</code>, and <code>size</code>.</p>
+<p>When the form field name is nested, such as <code>files[a][b][c]...</code>,
+          PHP must create that hierarchy separately for each of the six entries. One short empty-upload record expands into many native
+          <code>HashTables, Buckets</code> and string-key allocations. Hundreds of these records can
+          occupy more than the default 128 MiB PHP heap while their complete HTTP body remains below the default 8 MiB
+          <code>post_max_size</code>. This lets us make a chosen later allocation hit
+          <code>memory_limit</code>.</p>
+<h2 id="but-what-does-an-oom-buy-you-really">But what does an OOM buy you, really?</h2>
+<p>Now that we can cause OOM/fatal on demand, the question is what can we interrupt that leaves the process in an exploitable state.
+          We asked our audit buddy to go over <code>ZendMM</code> allocation behavior, fatal reporting, and request
+          shutdown for interesting points which may be vulnerable to unexpected interruptions. During that source review our agent noticed this ordering
+          in <code>_zend_hash_str_add_or_update_i</code>:</p>
+<div class="highlight"><pre><span></span><span class="n">idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ht</span><span class="o">-&gt;</span><span class="n">nNumUsed</span><span class="o">++</span><span class="p">;</span>
+<span class="n">ht</span><span class="o">-&gt;</span><span class="n">nNumOfElements</span><span class="o">++</span><span class="p">;</span>
+
+<span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ht</span><span class="o">-&gt;</span><span class="n">arData</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">idx</span><span class="p">;</span>
+<span class="n">p</span><span class="o">-&gt;</span><span class="n">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_init</span><span class="p">(</span><span class="n">str</span><span class="p">,</span><span class="w"> </span><span class="n">len</span><span class="p">,</span><span class="w"> </span><span class="n">persistent</span><span class="p">);</span><span class="w"> </span><span class="cm">/* may zend_bailout() */</span>
+
+<span class="n">p</span><span class="o">-&gt;</span><span class="n">h</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ZSTR_H</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">key</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">h</span><span class="p">;</span>
+<span class="n">ZVAL_COPY_VALUE</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="n">pData</span><span class="p">);</span>
+</pre></div>
+<p>PHP increments both <code>nNumUsed</code> and
+          <code>nNumOfElements</code> before fully initializing the new bucket. Increasing
+          <code>nNumUsed</code> makes the
+           bucket visible to teardown, even if the subsequent key allocation fatals as can be seen in the relevant branch of
+           <code>zend_array_destroy()</code>:</p>
+<div class="highlight"><pre><span></span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ht</span><span class="o">-&gt;</span><span class="n">arData</span><span class="p">;</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">ht</span><span class="o">-&gt;</span><span class="n">arData</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">ht</span><span class="o">-&gt;</span><span class="n">nNumUsed</span><span class="p">;</span><span class="w"> </span><span class="n">p</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">i_zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">val</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">key</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">zend_string_release</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">key</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+<p>This allows us to ensure that local control flow never reaches the
+          <code>key, hash, zval</code> or collision-chain assignments. But the count remains incremented,
+          so teardown later consumes stale allocation bytes as a live bucket:</p>
+<div class="highlight"><pre><span></span>increment live count
+        |
+        v
+Bucket becomes teardown-visible
+        |
+        v
+allocate owned key ----fatal----+
+        |                       |
+        v                       v
+initialize Bucket          assignments skipped
+        |                       |
+        v                       v
+valid table             teardown trusts live count
+                                |
+                                v
+                        stale Bucket consumption
+</pre></div>
+<p>My agent then traced the source root to automatic nested POST parsing and discovered that mod_php shutdown consumes the malformed table.
+The vulnerable <code>_zend_hash_str_add_or_update_i</code>
+is reached through normal request-variable registration:</p>
+<div class="highlight"><pre><span></span><span class="n">URL</span><span class="o">-</span><span class="n">encoded</span><span class="w"> </span><span class="n">POST</span><span class="w"> </span><span class="n">root</span><span class="p">[</span><span class="n">x</span><span class="p">]</span><span class="o">=</span><span class="n">v</span>
+<span class="w">  </span><span class="n">php_std_post_handler</span><span class="p">()</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">php_register_variable_ex</span><span class="p">()</span>
+<span class="w">      </span><span class="err">→</span><span class="w"> </span><span class="n">zend_symtable_str_update_ind</span><span class="p">()</span>
+<span class="w">        </span><span class="err">→</span><span class="w"> </span><span class="n">_zend_hash_str_add_or_update_i</span><span class="p">()</span>
+
+<span class="n">RFC1867</span><span class="w"> </span><span class="n">upload</span><span class="w"> </span><span class="n">root</span><span class="p">[</span><span class="n">x</span><span class="p">],</span><span class="w"> </span><span class="n">filename</span><span class="o">=</span><span class="s">&quot;...&quot;</span>
+<span class="w">  </span><span class="n">rfc1867_post_handler</span><span class="p">()</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">register_http_post_files_variable_ex</span><span class="p">()</span>
+<span class="w">      </span><span class="err">→</span><span class="w"> </span><span class="n">php_register_variable_ex</span><span class="p">()</span>
+<span class="w">        </span><span class="err">→</span><span class="w"> </span><span class="n">zend_symtable_str_update_ind</span><span class="p">()</span>
+<span class="w">          </span><span class="err">→</span><span class="w"> </span><span class="n">_zend_hash_str_add_or_update_i</span><span class="p">()</span>
+</pre></div>
+<p>Both paths execute during <code>php_request_startup()</code>, before the target PHP file runs.
+When the key allocation fatals, the SAPI determines whether the partial Bucket is ever consumed:</p>
+<div class="highlight"><pre><span></span><span class="cm">/* mod_php: registered request cleanup runs even after startup failure */</span>
+<span class="n">php_request_shutdown</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span><span class="w">       </span><span class="c1">// destroys malformed $_POST/$_FILES</span>
+
+<span class="cm">/* PHP-FPM: startup failure takes the process-exit branch */</span>
+<span class="n">php_module_shutdown</span><span class="p">();</span>
+<span class="k">return</span><span class="w"> </span><span class="n">FPM_EXIT_SOFTWARE</span><span class="p">;</span><span class="w">         </span><span class="c1">// no request-level table destruction</span>
+</pre></div>
+<p>Apache reaches <code>HashTable</code> teardown and interprets the stale bucket, while PHP-FPM discards it with the terminated worker. This is RCE against arbitrary
+  PHP scripts on Apache <i>mod_php</i> and PHP >= 7.3.</p>
+<h2 id="the-generalized-pattern">The generalized pattern</h2>
+<p>As I hinted earlier, the first bug is usually not the best bug, but can be a good indication other juicy bugs hiding nearby. After the
+        initial finding in <code>_zend_hash_str_add_or_update_i</code>, we had the LLM generalize the pattern
+        from “count before key allocation” to a <code>SKILL.md</code> that looks for:</p>
+<div class="highlight"><pre><span></span>publish or destroy state
+        → perform fallible work
+        → initialize, commit or restore
+
+nonlocal fatal during fallible work
+        → commit/rollback skipped
+        → surviving consumer trusts false state
+</pre></div>
+<p>The skill and pattern knowledge brought us a new finding in <code>Session upload-progress</code>
+        that confirms we discovered something more than a one-off flaw.</p>
+<p>The <code>Session upload-progress</code> feature can open and update a session while PHP is still parsing
+        the request body, before application code executes. The
+        PHP manual documents this early behavior. The relevant request-startup ordering in <code>main/main.c</code>
+        is:</p>
+<div class="highlight"><pre><span></span><span class="n">PG</span><span class="p">(</span><span class="n">modules_activated</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="cm">/* ... */</span>
+
+<span class="n">php_hash_environment</span><span class="p">();</span><span class="w">     </span><span class="cm">/* Parses request variables and multipart input. */</span>
+<span class="n">zend_activate_modules</span><span class="p">();</span><span class="w">    </span><span class="cm">/* Calls normal module RINIT functions. */</span>
+<span class="n">PG</span><span class="p">(</span><span class="n">modules_activated</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</pre></div>
+<p>Multipart parsing can therefore enter the session extension before PHP considers its modules activated. In
+<code>php_session_rfc1867_callback()</code>, the first qualifying file part takes this path:</p>
+<div class="highlight"><pre><span></span><span class="k">case</span><span class="w"> </span><span class="no">MULTIPART_EVENT_FILE_START</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="cm">/* ... */</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Z_ISUNDEF</span><span class="p">(</span><span class="n">progress</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="cm">/* Initialize the progress arrays. */</span>
+<span class="w">        </span><span class="cm">/* ... */</span>
+
+<span class="w">        </span><span class="n">php_rinit_session</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="w">        </span><span class="n">PS</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_copy</span><span class="p">(</span><span class="n">Z_STR</span><span class="p">(</span><span class="n">progress</span><span class="o">-&gt;</span><span class="n">sid</span><span class="p">));</span>
+
+<span class="w">        </span><span class="cm">/* ... */</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="cm">/* Initialize this file&#39;s progress record. */</span>
+<span class="w">    </span><span class="cm">/* ... */</span>
+
+<span class="w">    </span><span class="n">php_session_rfc1867_update</span><span class="p">(</span><span class="n">progress</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="k">break</span><span class="p">;</span>
+</pre></div>
+<p>The update calls <code>php_session_initialize()</code>, which also initializes
+<code>PS(http_session_vars)</code>. At this point, Session module globals hold pointers into
+the current request’s heap, but normal module activation has not finished.</p>
+<p>The matching cleanup is vulnerable to interruption. Ordinarily, the multipart <code>END</code>
+ callback cleans up this early session state. If parsing fatals first, that callback is skipped. Request shutdown also gates extension shutdown
+ on the activation flag:</p>
+<div class="highlight"><pre><span></span><span class="cm">/* php_request_shutdown() */</span>
+
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">PG</span><span class="p">(</span><span class="n">modules_activated</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">zend_deactivate_modules</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="cm">/* ... */</span>
+
+<span class="n">shutdown_memory_manager</span><span class="p">(</span>
+<span class="w">    </span><span class="n">CG</span><span class="p">(</span><span class="n">unclean_shutdown</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">!</span><span class="n">report_memleaks</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+</pre></div>
+<p>On the affected <i>mod_php</i> path,
+<code>PG(modules_activated)</code> is still false, so session
+<code>RSHUTDOWN</code> does not run. The request heap is destroyed regardless. The Apache worker survives with
+<code>PS(id)</code> and
+<code>PS(http_session_vars)</code> still pointing into that freed heap.</p>
+<p>The remaining question for exploitation is "what reaches those globals before they are reset?". A second multipart request is the answer.
+It can contain a Session ID and the <code>PHP_SESSION_UPLOAD_PROGRESS</code>
+ field, but no file part. That reaches <code>MULTIPART_EVENT_END</code>
+  without passing through <code>FILE_START</code>, so the early
+  <code>php_rinit_session(0)</code> reset never happens:</p>
+<div class="highlight"><pre><span></span><span class="k">case</span><span class="w"> </span><span class="no">MULTIPART_EVENT_END</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="cm">/* ... */</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Z_TYPE</span><span class="p">(</span><span class="n">progress</span><span class="o">-&gt;</span><span class="n">sid</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">progress</span><span class="o">-&gt;</span><span class="n">key</span><span class="p">.</span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">PS</span><span class="p">(</span><span class="n">rfc1867_cleanup</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">php_session_rfc1867_cleanup</span><span class="p">(</span><span class="n">progress</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="cm">/* ... */</span>
+<span class="w">        </span><span class="n">php_rshutdown_session_globals</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="cm">/* ... */</span>
+<span class="p">}</span>
+<span class="k">break</span><span class="p">;</span>
+</pre></div>
+<p>With upload-progress cleanup enabled, <code>php_session_rfc1867_cleanup()</code>
+ calls <code>php_session_initialize()</code>.
+ That function first encounters the stale (dangling) Session ID:</p>
+<div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">PS</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">!</span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">PS</span><span class="p">(</span><span class="n">id</span><span class="p">))[</span><span class="mi">0</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="cm">/* ... */</span>
+<span class="p">}</span>
+</pre></div>
+<p>Initialization then reaches <code>php_session_track_init()</code>,
+which destroys the previous Session value if it still appears defined:</p>
+<div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">Z_ISUNDEF</span><span class="p">(</span><span class="n">PS</span><span class="p">(</span><span class="n">http_session_vars</span><span class="p">)))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">PS</span><span class="p">(</span><span class="n">http_session_vars</span><span class="p">));</span>
+<span class="p">}</span>
+</pre></div>
+<p>Both operations trust state left behind by the failed request:</p>
+<div class="highlight"><pre><span></span><span class="n">Request</span><span class="w"> </span><span class="n">A</span><span class="o">:</span><span class="w"> </span><span class="n">FILE_START</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">initialize</span><span class="w"> </span><span class="n">Session</span><span class="w"> </span><span class="n">before</span><span class="w"> </span><span class="n">normal</span><span class="w"> </span><span class="n">module</span><span class="w"> </span><span class="n">activation</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">store</span><span class="w"> </span><span class="n">request</span><span class="o">-</span><span class="n">owned</span><span class="w"> </span><span class="n">pointers</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">Session</span><span class="w"> </span><span class="n">globals</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">later</span><span class="w"> </span><span class="n">multipart</span><span class="w"> </span><span class="n">parsing</span><span class="w"> </span><span class="n">fatals</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">skip</span><span class="w"> </span><span class="n">multipart</span><span class="w"> </span><span class="n">END</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">Session</span><span class="w"> </span><span class="n">RSHUTDOWN</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">free</span><span class="w"> </span><span class="n">request</span><span class="w"> </span><span class="n">heap</span><span class="p">;</span><span class="w"> </span><span class="n">worker</span><span class="w"> </span><span class="n">survives</span>
+
+<span class="n">Request</span><span class="w"> </span><span class="n">B</span><span class="o">:</span><span class="w"> </span><span class="n">multipart</span><span class="w"> </span><span class="n">form</span><span class="w"> </span><span class="n">without</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">file</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">no</span><span class="w"> </span><span class="n">FILE_START</span><span class="w"> </span><span class="n">reset</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">END</span><span class="w"> </span><span class="n">cleanup</span><span class="w"> </span><span class="n">initializes</span><span class="w"> </span><span class="n">Session</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">read</span><span class="w"> </span><span class="n">freed</span><span class="w"> </span><span class="n">Session</span><span class="w"> </span><span class="n">ID</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">destroy</span><span class="w"> </span><span class="n">freed</span><span class="w"> </span><span class="n">Session</span><span class="w"> </span><span class="n">value</span>
+</pre></div>
+<p>In <i>mod_php</i>,
+<code>php_apache_request_ctor()</code> calls
+<code>php_request_startup()</code>. A failure causes a bailout into the surrounding handler,
+but the code after that handler still runs. From <code>sapi_apache2.c:665</code>:</p>
+<div class="highlight"><pre><span></span><span class="n">zend_first_try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="cm">/* ... */</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">php_apache_request_ctor</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="n">ctx</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">zend_bailout</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="cm">/* Execute the PHP script. */</span>
+<span class="w">    </span><span class="cm">/* ... */</span>
+<span class="p">}</span><span class="w"> </span><span class="n">zend_end_try</span><span class="p">();</span>
+
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">parent_req</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">php_apache_request_dtor</span><span class="p">(</span><span class="n">r</span><span class="p">);</span>
+<span class="w">    </span><span class="cm">/* ... */</span>
+<span class="p">}</span>
+
+<span class="k">return</span><span class="w"> </span><span class="n">OK</span><span class="p">;</span>
+</pre></div>
+<p>The request destructor calls ordinary PHP request shutdown:</p>
+<div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">php_apache_request_dtor</span><span class="p">(</span><span class="n">request_rec</span><span class="w"> </span><span class="o">*</span><span class="n">r</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">php_request_shutdown</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+<p>That produces the dangerous combination. Because the fatal happened before normal module activation, request shutdown skips Session’s
+<code>RSHUTDOWN</code> hook, but still frees the request heap:</p>
+<div class="highlight"><pre><span></span><span class="cm">/* php_request_shutdown(), abbreviated */</span>
+
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">PG</span><span class="p">(</span><span class="n">modules_activated</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">zend_deactivate_modules</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="cm">/* ... */</span>
+
+<span class="n">shutdown_memory_manager</span><span class="p">(</span>
+<span class="w">    </span><span class="n">CG</span><span class="p">(</span><span class="n">unclean_shutdown</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">!</span><span class="n">report_memleaks</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+</pre></div>
+<p>The Apache child can now handle another request. Its Session globals survive, while the request allocations they pointed to have been freed.
+PHP-FPM makes a different decision. Its request loop (<code>fpm_main.c:1826</code>) handles the same startup
+failure like this:</p>
+<div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">UNEXPECTED</span><span class="p">(</span><span class="n">php_request_startup</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">fcgi_finish_request</span><span class="p">(</span><span class="n">request</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="w">    </span><span class="n">SG</span><span class="p">(</span><span class="n">server_context</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+<span class="w">    </span><span class="n">php_module_shutdown</span><span class="p">();</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">FPM_EXIT_SOFTWARE</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+<p>That <code>return</code> exits the PHP-FPM worker. There is no second request in the same process to consume the dangling Session
+state.</p>
+<div class="highlight"><pre><span></span>Startup fatal
+    |
+    +-- mod_php → request shutdown → heap freed → worker reused
+    |                                              |
+    |                                              v
+    |                                      stale Session consumed
+    |
+    +-- PHP-FPM → module shutdown → worker exits
+</pre></div>
+<p>This results in RCE against arbitrary PHP scripts on Apache <i>mod_php</i> and PHP >= 5.4.0.</p>
+<h2 id="but-what-about-fpm-or-a-gift-from-an-old-friend">But what about PHP-FPM? Or, a gift from an old friend...</h2>
+<p>We now have two different interruption points that make <i>mod_php</i> exploitable, but many modern PHP deployments use PHP-FPM
+and we haven't found an exploitable interruption that affects it yet. The important distinction is when the fatal happens. PHP-FPM terminates
+ its worker when <code>php_request_startup()</code> fails. Once startup has succeeded, however, an ordinary fatal during script execution
+ follows the normal request-shutdown path, and the worker can accept another request.</p>
+<p>That gave our agents a new direction: find request-owned state that an application can leave dangling after startup, then reach it
+through upload progress before the next request resets it.</p>
+<p>The old friend we mentioned earlier is commonly known as PHP’s generic unserializer, and its gift is the exact pattern we needed.
+The unserializer keeps shared bookkeeping for serialized references and values awaiting destruction. <code>php_var_unserialize_init()</code>
+allocates this state from the request heap and publishes it in the Basic extension’s globals. Nested decoding operations reuse it:</p>
+<div class="highlight"><pre><span></span><span class="cm">/* php_var_unserialize_init(), abbreviated */</span>
+
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">BG</span><span class="p">(</span><span class="n">serialize_lock</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">!</span><span class="n">BG</span><span class="p">(</span><span class="n">unserialize</span><span class="p">).</span><span class="n">level</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">emalloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">php_unserialize_data</span><span class="p">));</span>
+
+<span class="w">    </span><span class="cm">/* Initialize the reference and destructor lists. */</span>
+<span class="w">    </span><span class="cm">/* ... */</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">BG</span><span class="p">(</span><span class="n">serialize_lock</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">BG</span><span class="p">(</span><span class="n">unserialize</span><span class="p">).</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">d</span><span class="p">;</span>
+<span class="w">        </span><span class="n">BG</span><span class="p">(</span><span class="n">unserialize</span><span class="p">).</span><span class="n">level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BG</span><span class="p">(</span><span class="n">unserialize</span><span class="p">).</span><span class="n">data</span><span class="p">;</span>
+<span class="w">    </span><span class="o">++</span><span class="n">BG</span><span class="p">(</span><span class="n">unserialize</span><span class="p">).</span><span class="n">level</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+<p>Normal completion calls <code>php_var_unserialize_destroy()</code>, which releases the state and clears the global pointer when
+the nesting level reaches zero. A fatal inside the live decoder can skip that operation.
+The Session decoder gives us a straightforward example:</p>
+<div class="highlight"><pre><span></span><span class="n">PHP_VAR_UNSERIALIZE_INIT</span><span class="p">(</span><span class="n">var_hash</span><span class="p">);</span>
+
+<span class="cm">/* Decode the Session&#39;s values. */</span>
+<span class="n">current</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">var_tmp_var</span><span class="p">(</span><span class="o">&amp;</span><span class="n">var_hash</span><span class="p">);</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">php_var_unserialize</span><span class="p">(</span><span class="n">current</span><span class="p">,</span>
+<span class="w">        </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">q</span><span class="p">,</span>
+<span class="w">        </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">endptr</span><span class="p">,</span>
+<span class="w">        </span><span class="o">&amp;</span><span class="n">var_hash</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="cm">/* ... */</span>
+<span class="p">}</span>
+
+<span class="cm">/* ... */</span>
+
+<span class="n">PHP_VAR_UNSERIALIZE_DESTROY</span><span class="p">(</span><span class="n">var_hash</span><span class="p">);</span>
+</pre></div>
+<p>In <i>phpMyAdmin</i>, a normal <code>session_start()</code> loads a Session record that we previously built through HTTP requests.
+WordPress reaches the same generic decoder through ordinary <code>maybe_unserialize()</code> calls. By controlling the memory pressure around
+those operations, we can let the decoder build useful reference and destructor lists before a later allocation hits <code>memory_limit</code>.</p>
+<p>The outer Session error handler cleans up Session, but it does not clear Basic’s abandoned decoder state. Request shutdown releases the heap while
+<code>BG(unserialize).data</code> still points into it and the nesting level remains nonzero. Because this fatal happened after successful
+request startup, PHP-FPM can keep the worker alive.</p>
+<p>The next multipart request reaches Session upload progress before Basic’s normal request initialization. The stale nesting level makes
+<code>php_var_unserialize_init()</code> treat the dangling pointer as an active nested decoder. Ordinary request allocations can reclaim the
+freed storage before that happens:</p>
+<div class="highlight"><pre><span></span><span class="n">Application</span><span class="w"> </span><span class="n">request</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">request</span><span class="w"> </span><span class="n">startup</span><span class="w"> </span><span class="n">succeeds</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">application</span><span class="w"> </span><span class="n">starts</span><span class="w"> </span><span class="n">decoding</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">decoder</span><span class="w"> </span><span class="n">state</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">published</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">allocation</span><span class="w"> </span><span class="n">fatal</span><span class="w"> </span><span class="n">skips</span><span class="w"> </span><span class="n">decoder</span><span class="w"> </span><span class="n">destruction</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">request</span><span class="w"> </span><span class="n">heap</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">freed</span><span class="p">;</span><span class="w"> </span><span class="n">PHP-FPM</span><span class="w"> </span><span class="n">worker</span><span class="w"> </span><span class="n">survives</span>
+
+<span class="n">Next</span><span class="w"> </span><span class="n">multipart</span><span class="w"> </span><span class="n">request</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">request</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="n">reclaims</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">freed</span><span class="w"> </span><span class="n">storage</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">upload</span><span class="w"> </span><span class="n">progress</span><span class="w"> </span><span class="n">starts</span><span class="w"> </span><span class="n">Session</span><span class="w"> </span><span class="n">before</span><span class="w"> </span><span class="n">Basic</span><span class="w"> </span><span class="n">RINIT</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">decoder</span><span class="w"> </span><span class="n">reuses</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">stale</span><span class="w"> </span><span class="n">bookkeeping</span>
+</pre></div>
+<p>Serialized <code>R:</code> and <code>r:</code> references can follow selected entries in the reclaimed reference list. The destructor list
+gives us a second primitive: a controlled native zval copy.</p>
+<p>Each destructor block has a signed <code>used_slots</code> count. Its allocation helper checks whether adding another entry would exceed the block’s
+capacity, but assumes the existing count cannot be negative:</p>
+<div class="highlight"><pre><span></span><span class="n">var_hash</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">var_hashx</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">last_dtor</span><span class="p">;</span>
+
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">var_hash</span><span class="w"> </span><span class="o">||</span>
+<span class="w">        </span><span class="n">var_hash</span><span class="o">-&gt;</span><span class="n">used_slots</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">num</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">VAR_DTOR_ENTRIES_MAX</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="cm">/* Allocate a fresh destructor block. */</span>
+<span class="w">    </span><span class="cm">/* ... */</span>
+<span class="p">}</span>
+
+<span class="cm">/* Initialize and return the selected slots. */</span>
+</pre></div>
+<p>After reclamation, we can violate that assumption. On the tested 64-bit layout, the selected slot is calculated as:</p>
+<div class="highlight"><pre><span></span>slot = destructor_block + 16 + 16 × used_slots
+</pre></div>
+<p>A negative count selects memory before the intended array. Duplicate keys in the serialized input then reach <code>var_push_dtor_value()</code>,
+which preserves the previous value by copying its genuine zval into that selected slot:</p>
+<div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">tmp_var</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">var_tmp_var</span><span class="p">(</span><span class="n">var_hashx</span><span class="p">);</span>
+<span class="cm">/* ... */</span>
+<span class="n">ZVAL_COPY_VALUE</span><span class="p">(</span><span class="n">tmp_var</span><span class="p">,</span><span class="w"> </span><span class="n">rval</span><span class="p">);</span>
+</pre></div>
+<p>We therefore control where PHP places a pointer and its associated type information. This is application-dependent RCE under both Apache mod_php and PHP-FPM.</p>
+<p>An application exposes the vulnerable transaction through a reachable post-startup decoding operation such as <code>session_start()</code>,
+<code>session_decode()</code> or <code>unserialize()</code> - including wrappers such as WordPress’s <code>maybe_unserialize()</code>.
+The decoded data can be legitimate. An attacker who controls the surrounding memory pressure may still interrupt that decode at a useful point,
+then use a later upload-progress request to consume the stale state in the surviving worker.</p>
+<p>This demo shows the exploit running against Nginx with PHP-FPM:</p>
+<div class="exploit-video" style="width:100%;aspect-ratio:16/9;margin:28px 0 34px;overflow:hidden">
+  <iframe width="1280" height="720" style="display:block;width:100%;height:100%;border:0" src="https://www.youtube-nocookie.com/embed/cE4h79AWbT4" title="Exploiting Nginx with PHP-FPM" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+</div>
+<h3 id="an-interesting-timeline-of-events">An interesting timeline of events</h3>
+<p>After finishing investigating the PHP vulnerabilities we wanted to check if Hack/HHVM was vulnerable to similar issues.</p>
+<p>As it turns out the vulnerability was &quot;mitigated&quot; in HHVM by an upstream PHP <a href="https://github.com/php/php-src/commit/3c8582ca4b8e84e5647220b647914876d2c3b124">patch</a> that was submitted in 2020 <a href="https://bugs.php.net/bug.php?id=78876">#78876 Long variables in multipart/form-data cause OOM and temp files</a></p>
+<p>While looking at this patch we noted a tag in the git that said <code>security-audit-2024</code> even though this patch was from 2020 which pointed to a similar finding being found in the 2024 <a href="https://ostif.org/php-audit-complete/">OSTIFY audit</a>. We were able to confirm from PHP a similar/related issue was uncovered but exploitation was not proven in 2024.</p>
+<p>As such the timeline from our point of view is:</p>
+<ul class="timeline">
+<li><time>2004</time>Stefan Esser discovered <a href="https://marc.info/?l=bugtraq&amp;m=108981780109154&amp;w=2">the first PHP memory limit remote vulnerability</a>.</li>
+<li><time>2020</time><a href="https://bugs.php.net/bug.php?id=78876">#78876</a> was reported by <code>jr@coredu.mp</code>.</li>
+<li><time>2024</time>OSTIFY &amp; Quarkslab identified a related bug of #78876 that exploitation was unproven.</li>
+<li><time>2026 — August 1</time>Calif discovered multiple different paths independently leading to RCE that resurfaced the 2024 issues and new trigger points.</li>
+<li><time>2026 — August 5</time>Calif researcher Ryan Austin (<a href="https://x.com/lcfr_hax">@lcfr_hax</a>) tweeted <a href="https://x.com/lcfr_hax/status/2085031675382071483">hash</a> of one finding.</li>
+<li><time>2026 — August 11</time>Calif reported the first bug to PHP and started coordinated disclosure process.</li>
+<li><time>2026 — August 14</time>Calif shared an RCE PoC with PHP.</li>
+<li><time>2026 — August 15</time>PHP confirmed that the RCE PoC worked as expected.</li>
+<li><time>2026 — August 21</time>Calif reported the second bug to PHP.</li>
+<li><time>2026 — October 21</time>Patched versions released.</li>
+</ul>
+<h2 id="how-did-we-find-this">How did we find this?</h2>
+<p>No special harness, or access to models that weren't generally available to everyone were used in the initial bug discovery. I focused on
+something I had a background in, knew its vulnerability history well, and held a theory that specific bugs lurk within the codebase.
+This shows that "know your target" is still as applicable as ever, even in the LLM dominated VR age. No model is simply capable of
+unearthing "all bugs" with simple prompts. At least for now.</p>
+<p>There are some practical research implications here. LLMs may have ingested public historical vuln data, but in their default variant
+analysis tends to move from the newest and most prominent bugs toward nearby older code. They do not reliably begin with obscure
+twenty-year-old exploitation primitives. Keeping your own mental catalog of a target's vulnerability history lets you prompt that direction explicitly.</p>
+<h3 id="recommendations">Recommendations</h3>
+<p><strong>Patch now.</strong> Upgrade to a fixed PHP release as soon as possible.</p>
+<p>If you cannot patch immediately, the following <strong>temporary, partial mitigations</strong> may buy you some time:</p>
+<ul>
+<li>For <code>PHP-FPM</code>, disable session upload progress with <code>session.upload_progress.enabled=0</code> and set <code>memory_limit=-1</code>.</li>
+<li>For <code>mod_php</code>, set <code>memory_limit=-1</code>.</li>
+</ul>
+<p>These changes do not replace a patch. Setting <code>memory_limit=-1</code> removes PHP’s memory cap, increasing the risk of memory exhaustion.</p>
+<p><strong>But seriously: patch.</strong> See the <a href="https://www.php.net/archive/2026.php#2026-10-21-5">PHP October 2026 Security Release</a> for official recommendations.</p>
+<h3 id="credits">Credits</h3>
+<p>Research and writeup by Ryan Austin (<a href="https://x.com/lcfr_hax">@lcfr_hax</a>) of Calif.</p>
+<p>Comic illustrated by Stephanie Cortes of <a href="https://www.ibiscraft.art">Ibis Craft</a>.</p>
+<p>Poster and comic story by Michal Zalewski (<a href="https://x.com/lcamtuf">@lcamtuf</a>) of Calif.</p>
+<img class="research-logo" src="/php2shell.x/php_logo.jpg" width="723" height="1306" loading="lazy" alt="php2shell vulnerability logo.">
+      </article>
+    </div>
+  </main>
+
+  <footer class="site-footer"><a class="wordmark" href="/">calif.io</a><a href="#opening">Back to the beginning ↑</a></footer>
+</body>
+</html>

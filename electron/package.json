@@ -1,0 +1,15 @@
+{
+  "name": "aurora-shell",
+  "version": "0.1.0",
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "build": "npm --prefix ../frontend run build",
+    "prestart": "npm run build",
+    "start": "electron . --no-sandbox --ozone-platform=x11",
+    "start:production": "electron . --no-sandbox --ozone-platform=x11"
+  },
+  "devDependencies": {
+    "electron": "^44.5.1"
+  }
+}

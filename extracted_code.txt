@@ -1,0 +1,258 @@
+<pre><code class="language-txt">- WordPress 7.1.2
+- Drupal 11.4.3
+- Joomla 6.1.4
+- MediaWiki 1.46.2
+- Roundcube 1.7.4
+- Magento 2.4.9
+- phpMyAdmin 5.2.3
+- Nextcloud 35.0.1
+- Laravel 13.11
+- Symfony 8.1
+- WHMCS</code></pre>
+<div class="highlight"><pre><span></span><span class="n">idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ht</span><span class="o">-&gt;</span><span class="n">nNumUsed</span><span class="o">++</span><span class="p">;</span>
+<span class="n">ht</span><span class="o">-&gt;</span><span class="n">nNumOfElements</span><span class="o">++</span><span class="p">;</span>
+
+<span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ht</span><span class="o">-&gt;</span><span class="n">arData</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">idx</span><span class="p">;</span>
+<span class="n">p</span><span class="o">-&gt;</span><span class="n">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_init</span><span class="p">(</span><span class="n">str</span><span class="p">,</span><span class="w"> </span><span class="n">len</span><span class="p">,</span><span class="w"> </span><span class="n">persistent</span><span class="p">);</span><span class="w"> </span><span class="cm">/* may zend_bailout() */</span>
+
+<span class="n">p</span><span class="o">-&gt;</span><span class="n">h</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ZSTR_H</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">key</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">h</span><span class="p">;</span>
+<span class="n">ZVAL_COPY_VALUE</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="n">pData</span><span class="p">);</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ht</span><span class="o">-&gt;</span><span class="n">arData</span><span class="p">;</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">ht</span><span class="o">-&gt;</span><span class="n">arData</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">ht</span><span class="o">-&gt;</span><span class="n">nNumUsed</span><span class="p">;</span><span class="w"> </span><span class="n">p</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">i_zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">val</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">key</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">zend_string_release</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">key</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+<div class="highlight"><pre><span></span>increment live count
+        |
+        v
+Bucket becomes teardown-visible
+        |
+        v
+allocate owned key ----fatal----+
+        |                       |
+        v                       v
+initialize Bucket          assignments skipped
+        |                       |
+        v                       v
+valid table             teardown trusts live count
+                                |
+                                v
+                        stale Bucket consumption
+</pre></div>
+<div class="highlight"><pre><span></span><span class="n">URL</span><span class="o">-</span><span class="n">encoded</span><span class="w"> </span><span class="n">POST</span><span class="w"> </span><span class="n">root</span><span class="p">[</span><span class="n">x</span><span class="p">]</span><span class="o">=</span><span class="n">v</span>
+<span class="w">  </span><span class="n">php_std_post_handler</span><span class="p">()</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">php_register_variable_ex</span><span class="p">()</span>
+<span class="w">      </span><span class="err">→</span><span class="w"> </span><span class="n">zend_symtable_str_update_ind</span><span class="p">()</span>
+<span class="w">        </span><span class="err">→</span><span class="w"> </span><span class="n">_zend_hash_str_add_or_update_i</span><span class="p">()</span>
+
+<span class="n">RFC1867</span><span class="w"> </span><span class="n">upload</span><span class="w"> </span><span class="n">root</span><span class="p">[</span><span class="n">x</span><span class="p">],</span><span class="w"> </span><span class="n">filename</span><span class="o">=</span><span class="s">&quot;...&quot;</span>
+<span class="w">  </span><span class="n">rfc1867_post_handler</span><span class="p">()</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">register_http_post_files_variable_ex</span><span class="p">()</span>
+<span class="w">      </span><span class="err">→</span><span class="w"> </span><span class="n">php_register_variable_ex</span><span class="p">()</span>
+<span class="w">        </span><span class="err">→</span><span class="w"> </span><span class="n">zend_symtable_str_update_ind</span><span class="p">()</span>
+<span class="w">          </span><span class="err">→</span><span class="w"> </span><span class="n">_zend_hash_str_add_or_update_i</span><span class="p">()</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="cm">/* mod_php: registered request cleanup runs even after startup failure */</span>
+<span class="n">php_request_shutdown</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span><span class="w">       </span><span class="c1">// destroys malformed $_POST/$_FILES</span>
+
+<span class="cm">/* PHP-FPM: startup failure takes the process-exit branch */</span>
+<span class="n">php_module_shutdown</span><span class="p">();</span>
+<span class="k">return</span><span class="w"> </span><span class="n">FPM_EXIT_SOFTWARE</span><span class="p">;</span><span class="w">         </span><span class="c1">// no request-level table destruction</span>
+</pre></div>
+<div class="highlight"><pre><span></span>publish or destroy state
+        → perform fallible work
+        → initialize, commit or restore
+
+nonlocal fatal during fallible work
+        → commit/rollback skipped
+        → surviving consumer trusts false state
+</pre></div>
+<div class="highlight"><pre><span></span><span class="n">PG</span><span class="p">(</span><span class="n">modules_activated</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="cm">/* ... */</span>
+
+<span class="n">php_hash_environment</span><span class="p">();</span><span class="w">     </span><span class="cm">/* Parses request variables and multipart input. */</span>
+<span class="n">zend_activate_modules</span><span class="p">();</span><span class="w">    </span><span class="cm">/* Calls normal module RINIT functions. */</span>
+<span class="n">PG</span><span class="p">(</span><span class="n">modules_activated</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="k">case</span><span class="w"> </span><span class="no">MULTIPART_EVENT_FILE_START</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="cm">/* ... */</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Z_ISUNDEF</span><span class="p">(</span><span class="n">progress</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="cm">/* Initialize the progress arrays. */</span>
+<span class="w">        </span><span class="cm">/* ... */</span>
+
+<span class="w">        </span><span class="n">php_rinit_session</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="w">        </span><span class="n">PS</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_copy</span><span class="p">(</span><span class="n">Z_STR</span><span class="p">(</span><span class="n">progress</span><span class="o">-&gt;</span><span class="n">sid</span><span class="p">));</span>
+
+<span class="w">        </span><span class="cm">/* ... */</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="cm">/* Initialize this file&#39;s progress record. */</span>
+<span class="w">    </span><span class="cm">/* ... */</span>
+
+<span class="w">    </span><span class="n">php_session_rfc1867_update</span><span class="p">(</span><span class="n">progress</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="k">break</span><span class="p">;</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="cm">/* php_request_shutdown() */</span>
+
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">PG</span><span class="p">(</span><span class="n">modules_activated</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">zend_deactivate_modules</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="cm">/* ... */</span>
+
+<span class="n">shutdown_memory_manager</span><span class="p">(</span>
+<span class="w">    </span><span class="n">CG</span><span class="p">(</span><span class="n">unclean_shutdown</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">!</span><span class="n">report_memleaks</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="k">case</span><span class="w"> </span><span class="no">MULTIPART_EVENT_END</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="cm">/* ... */</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Z_TYPE</span><span class="p">(</span><span class="n">progress</span><span class="o">-&gt;</span><span class="n">sid</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">progress</span><span class="o">-&gt;</span><span class="n">key</span><span class="p">.</span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">PS</span><span class="p">(</span><span class="n">rfc1867_cleanup</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">php_session_rfc1867_cleanup</span><span class="p">(</span><span class="n">progress</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="cm">/* ... */</span>
+<span class="w">        </span><span class="n">php_rshutdown_session_globals</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="cm">/* ... */</span>
+<span class="p">}</span>
+<span class="k">break</span><span class="p">;</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">PS</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">!</span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">PS</span><span class="p">(</span><span class="n">id</span><span class="p">))[</span><span class="mi">0</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="cm">/* ... */</span>
+<span class="p">}</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">Z_ISUNDEF</span><span class="p">(</span><span class="n">PS</span><span class="p">(</span><span class="n">http_session_vars</span><span class="p">)))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">PS</span><span class="p">(</span><span class="n">http_session_vars</span><span class="p">));</span>
+<span class="p">}</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="n">Request</span><span class="w"> </span><span class="n">A</span><span class="o">:</span><span class="w"> </span><span class="n">FILE_START</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">initialize</span><span class="w"> </span><span class="n">Session</span><span class="w"> </span><span class="n">before</span><span class="w"> </span><span class="n">normal</span><span class="w"> </span><span class="n">module</span><span class="w"> </span><span class="n">activation</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">store</span><span class="w"> </span><span class="n">request</span><span class="o">-</span><span class="n">owned</span><span class="w"> </span><span class="n">pointers</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">Session</span><span class="w"> </span><span class="n">globals</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">later</span><span class="w"> </span><span class="n">multipart</span><span class="w"> </span><span class="n">parsing</span><span class="w"> </span><span class="n">fatals</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">skip</span><span class="w"> </span><span class="n">multipart</span><span class="w"> </span><span class="n">END</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">Session</span><span class="w"> </span><span class="n">RSHUTDOWN</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">free</span><span class="w"> </span><span class="n">request</span><span class="w"> </span><span class="n">heap</span><span class="p">;</span><span class="w"> </span><span class="n">worker</span><span class="w"> </span><span class="n">survives</span>
+
+<span class="n">Request</span><span class="w"> </span><span class="n">B</span><span class="o">:</span><span class="w"> </span><span class="n">multipart</span><span class="w"> </span><span class="n">form</span><span class="w"> </span><span class="n">without</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">file</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">no</span><span class="w"> </span><span class="n">FILE_START</span><span class="w"> </span><span class="n">reset</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">END</span><span class="w"> </span><span class="n">cleanup</span><span class="w"> </span><span class="n">initializes</span><span class="w"> </span><span class="n">Session</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">read</span><span class="w"> </span><span class="n">freed</span><span class="w"> </span><span class="n">Session</span><span class="w"> </span><span class="n">ID</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">destroy</span><span class="w"> </span><span class="n">freed</span><span class="w"> </span><span class="n">Session</span><span class="w"> </span><span class="n">value</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="n">zend_first_try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="cm">/* ... */</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">php_apache_request_ctor</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="n">ctx</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">zend_bailout</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="cm">/* Execute the PHP script. */</span>
+<span class="w">    </span><span class="cm">/* ... */</span>
+<span class="p">}</span><span class="w"> </span><span class="n">zend_end_try</span><span class="p">();</span>
+
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">parent_req</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">php_apache_request_dtor</span><span class="p">(</span><span class="n">r</span><span class="p">);</span>
+<span class="w">    </span><span class="cm">/* ... */</span>
+<span class="p">}</span>
+
+<span class="k">return</span><span class="w"> </span><span class="n">OK</span><span class="p">;</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">php_apache_request_dtor</span><span class="p">(</span><span class="n">request_rec</span><span class="w"> </span><span class="o">*</span><span class="n">r</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">php_request_shutdown</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="cm">/* php_request_shutdown(), abbreviated */</span>
+
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">PG</span><span class="p">(</span><span class="n">modules_activated</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">zend_deactivate_modules</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="cm">/* ... */</span>
+
+<span class="n">shutdown_memory_manager</span><span class="p">(</span>
+<span class="w">    </span><span class="n">CG</span><span class="p">(</span><span class="n">unclean_shutdown</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">!</span><span class="n">report_memleaks</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">UNEXPECTED</span><span class="p">(</span><span class="n">php_request_startup</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">fcgi_finish_request</span><span class="p">(</span><span class="n">request</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="w">    </span><span class="n">SG</span><span class="p">(</span><span class="n">server_context</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+<span class="w">    </span><span class="n">php_module_shutdown</span><span class="p">();</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">FPM_EXIT_SOFTWARE</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+<div class="highlight"><pre><span></span>Startup fatal
+    |
+    +-- mod_php → request shutdown → heap freed → worker reused
+    |                                              |
+    |                                              v
+    |                                      stale Session consumed
+    |
+    +-- PHP-FPM → module shutdown → worker exits
+</pre></div>
+<div class="highlight"><pre><span></span><span class="cm">/* php_var_unserialize_init(), abbreviated */</span>
+
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">BG</span><span class="p">(</span><span class="n">serialize_lock</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">!</span><span class="n">BG</span><span class="p">(</span><span class="n">unserialize</span><span class="p">).</span><span class="n">level</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">emalloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">php_unserialize_data</span><span class="p">));</span>
+
+<span class="w">    </span><span class="cm">/* Initialize the reference and destructor lists. */</span>
+<span class="w">    </span><span class="cm">/* ... */</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">BG</span><span class="p">(</span><span class="n">serialize_lock</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">BG</span><span class="p">(</span><span class="n">unserialize</span><span class="p">).</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">d</span><span class="p">;</span>
+<span class="w">        </span><span class="n">BG</span><span class="p">(</span><span class="n">unserialize</span><span class="p">).</span><span class="n">level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BG</span><span class="p">(</span><span class="n">unserialize</span><span class="p">).</span><span class="n">data</span><span class="p">;</span>
+<span class="w">    </span><span class="o">++</span><span class="n">BG</span><span class="p">(</span><span class="n">unserialize</span><span class="p">).</span><span class="n">level</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="n">PHP_VAR_UNSERIALIZE_INIT</span><span class="p">(</span><span class="n">var_hash</span><span class="p">);</span>
+
+<span class="cm">/* Decode the Session&#39;s values. */</span>
+<span class="n">current</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">var_tmp_var</span><span class="p">(</span><span class="o">&amp;</span><span class="n">var_hash</span><span class="p">);</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">php_var_unserialize</span><span class="p">(</span><span class="n">current</span><span class="p">,</span>
+<span class="w">        </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">q</span><span class="p">,</span>
+<span class="w">        </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">endptr</span><span class="p">,</span>
+<span class="w">        </span><span class="o">&amp;</span><span class="n">var_hash</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="cm">/* ... */</span>
+<span class="p">}</span>
+
+<span class="cm">/* ... */</span>
+
+<span class="n">PHP_VAR_UNSERIALIZE_DESTROY</span><span class="p">(</span><span class="n">var_hash</span><span class="p">);</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="n">Application</span><span class="w"> </span><span class="n">request</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">request</span><span class="w"> </span><span class="n">startup</span><span class="w"> </span><span class="n">succeeds</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">application</span><span class="w"> </span><span class="n">starts</span><span class="w"> </span><span class="n">decoding</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">decoder</span><span class="w"> </span><span class="n">state</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">published</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">allocation</span><span class="w"> </span><span class="n">fatal</span><span class="w"> </span><span class="n">skips</span><span class="w"> </span><span class="n">decoder</span><span class="w"> </span><span class="n">destruction</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">request</span><span class="w"> </span><span class="n">heap</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">freed</span><span class="p">;</span><span class="w"> </span><span class="n">PHP-FPM</span><span class="w"> </span><span class="n">worker</span><span class="w"> </span><span class="n">survives</span>
+
+<span class="n">Next</span><span class="w"> </span><span class="n">multipart</span><span class="w"> </span><span class="n">request</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">request</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="n">reclaims</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">freed</span><span class="w"> </span><span class="n">storage</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">upload</span><span class="w"> </span><span class="n">progress</span><span class="w"> </span><span class="n">starts</span><span class="w"> </span><span class="n">Session</span><span class="w"> </span><span class="n">before</span><span class="w"> </span><span class="n">Basic</span><span class="w"> </span><span class="n">RINIT</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">decoder</span><span class="w"> </span><span class="n">reuses</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">stale</span><span class="w"> </span><span class="n">bookkeeping</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="n">var_hash</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">var_hashx</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">last_dtor</span><span class="p">;</span>
+
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">var_hash</span><span class="w"> </span><span class="o">||</span>
+<span class="w">        </span><span class="n">var_hash</span><span class="o">-&gt;</span><span class="n">used_slots</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">num</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">VAR_DTOR_ENTRIES_MAX</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="cm">/* Allocate a fresh destructor block. */</span>
+<span class="w">    </span><span class="cm">/* ... */</span>
+<span class="p">}</span>
+
+<span class="cm">/* Initialize and return the selected slots. */</span>
+</pre></div>
+<div class="highlight"><pre><span></span>slot = destructor_block + 16 + 16 × used_slots
+</pre></div>
+<div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">tmp_var</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">var_tmp_var</span><span class="p">(</span><span class="n">var_hashx</span><span class="p">);</span>
+<span class="cm">/* ... */</span>
+<span class="n">ZVAL_COPY_VALUE</span><span class="p">(</span><span class="n">tmp_var</span><span class="p">,</span><span class="w"> </span><span class="n">rval</span><span class="p">);</span>
+</pre></div>
